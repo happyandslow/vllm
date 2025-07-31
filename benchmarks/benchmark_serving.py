@@ -832,7 +832,7 @@ def main(args: argparse.Namespace):
             ramp_up_strategy=args.ramp_up_strategy,
             ramp_up_start_rps=args.ramp_up_start_rps,
             ramp_up_end_rps=args.ramp_up_end_rps,
-            routing_policy=args.routing_policy,
+            routing_policy=args.routing_strategy,
         )
     )
 
