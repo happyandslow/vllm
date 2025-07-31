@@ -34,6 +34,7 @@ class RequestFuncInput:
     multi_modal_content: Optional[dict] = None
     ignore_eos: bool = False
     language: Optional[str] = None
+    routing_policy: Optional[str] = None
 
 
 @dataclass
@@ -283,7 +284,8 @@ async def async_request_openai_completions(
         if request_func_input.extra_body:
             payload.update(request_func_input.extra_body)
         headers = {"Authorization": f"Bearer {os.environ.get('OPENAI_API_KEY')}"}
-
+        if request_func_input.routing_policy:
+            headers["routing-strategy"] = request_func_input.routing_policy
         output = RequestFuncOutput()
         output.prompt_len = request_func_input.prompt_len
 

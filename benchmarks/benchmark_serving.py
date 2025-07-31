@@ -250,6 +250,7 @@ async def benchmark(
     ramp_up_strategy: Optional[Literal["linear", "exponential"]] = None,
     ramp_up_start_rps: Optional[int] = None,
     ramp_up_end_rps: Optional[int] = None,
+    routing_policy: Optional[str] = None,
 ):
     if backend in ASYNC_REQUEST_FUNCS:
         request_func = ASYNC_REQUEST_FUNCS[backend]
@@ -277,6 +278,8 @@ async def benchmark(
         ignore_eos=ignore_eos,
         extra_body=extra_body,
     )
+    if routing_policy:
+        test_input.routing_policy = routing_policy
 
     test_output = await request_func(request_func_input=test_input)
     if not test_output.success:
@@ -829,6 +832,7 @@ def main(args: argparse.Namespace):
             ramp_up_strategy=args.ramp_up_strategy,
             ramp_up_start_rps=args.ramp_up_start_rps,
             ramp_up_end_rps=args.ramp_up_end_rps,
+            routing_policy=args.routing_policy,
         )
     )
 
@@ -1288,6 +1292,12 @@ def create_argument_parser():
         default=None,
         help="The ending request rate for ramp-up (RPS). "
         "Needs to be specified when --ramp-up-strategy is used.",
+    )
+    parser.add_argument(
+        "--routing-strategy",
+        type=str,
+        default=None,
+        help="Routing strategy (default none)",
     )
 
     return parser
