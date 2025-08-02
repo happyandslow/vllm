@@ -277,6 +277,7 @@ async def benchmark(
         multi_modal_content=test_mm_content,
         ignore_eos=ignore_eos,
         extra_body=extra_body,
+        routing_policy=routing_policy,
     )
     if routing_policy:
         test_input.routing_policy = routing_policy
@@ -309,6 +310,7 @@ async def benchmark(
             multi_modal_content=test_mm_content,
             ignore_eos=ignore_eos,
             extra_body=extra_body,
+            routing_policy=routing_policy,
         )
         profile_output = await request_func(request_func_input=profile_input)
         if profile_output.success:
@@ -394,6 +396,7 @@ async def benchmark(
             multi_modal_content=mm_content,
             ignore_eos=ignore_eos,
             extra_body=extra_body,
+            routing_policy=routing_policy,
         )
         task = limited_request_func(request_func_input=request_func_input, pbar=pbar)
         tasks.append(asyncio.create_task(task))
@@ -520,6 +523,7 @@ async def benchmark(
             prompt_len=test_prompt_len,
             output_len=test_output_len,
             logprobs=logprobs,
+            routing_policy=routing_policy,
         )
         profile_output = await request_func(request_func_input=profile_input)
         if profile_output.success:
@@ -1307,3 +1311,4 @@ if __name__ == "__main__":
     parser = create_argument_parser()
     args = parser.parse_args()
     main(args)
+
