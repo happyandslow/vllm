@@ -10,21 +10,21 @@ MODEL=$3 #"/models/Qwen3-32B" #"qwen3-8B" #"deepseek-ai/DeepSeek-R1-Distill-Llam
 HOST=$1 #"192.168.0.6" #"127.0.0.1"
 PORT=$2 #30000 #8000
 OUTPUT=$5 
-#python3 benchmark_serving.py --port $PORT --host $HOST  --seed $(date +%s) \
-#      --model $MODEL \
-#      --tokenizer $TOKENIZER \
-#      --dataset-name random --random-input-len 8000 --random-output-len 200 \
-#      --num-prompts 200 --burstiness 100 --request-rate 3.6 --metric-percentiles 95 \
-#      --backend openai-chat --endpoint /v1/chat/completions --ignore-eos | tee $5
-
-
-# Policy
 python3 benchmark_serving.py --port $PORT --host $HOST  --seed $(date +%s) \
       --model $MODEL \
       --tokenizer $TOKENIZER \
       --dataset-name random --random-input-len 8000 --random-output-len 200 \
-      --num-prompts 200 --burstiness 100 --request-rate 3.6 --metric-percentiles 95 \
-      --backend openai-chat --endpoint /v1/chat/completions --routing-strategy "pd" --ignore-eos | tee $5
+      --num-prompts 200 --burstiness 100 --request-rate 1.5 --metric-percentiles 95 \
+      --backend openai-chat --endpoint /v1/chat/completions --ignore-eos | tee $5
+
+
+# Policy
+#python3 benchmark_serving.py --port $PORT --host $HOST  --seed $(date +%s) \
+#      --model $MODEL \
+#      --tokenizer $TOKENIZER \
+#      --dataset-name random --random-input-len 8000 --random-output-len 200 \
+#      --num-prompts 200 --burstiness 100 --request-rate 1 --metric-percentiles 95 \
+#      --backend openai-chat --endpoint /v1/chat/completions --routing-strategy "pd" --ignore-eos | tee $5
 
 
 

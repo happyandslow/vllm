@@ -391,6 +391,8 @@ async def async_request_openai_chat_completions(
         }
         if request_func_input.routing_policy:
             headers["routing-strategy"] = request_func_input.routing_policy
+        if request_func_input.routing_policy:
+            headers["routing-strategy"] = request_func_input.routing_policy
         output = RequestFuncOutput()
         output.prompt_len = request_func_input.prompt_len
 

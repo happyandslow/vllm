@@ -281,7 +281,6 @@ async def benchmark(
     )
     if routing_policy:
         test_input.routing_policy = routing_policy
-
     test_output = await request_func(request_func_input=test_input)
     if not test_output.success:
         raise ValueError(
