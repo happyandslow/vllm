@@ -48,6 +48,15 @@ def encode_base64_content_from_url(content_url: str) -> str:
 
     return result
 
+def encode_base64_content_from_file(file_path: str) -> str:
+    """Encode a content retrieved from a remote url to base64 format."""
+    # result = base64.b64encode(file_path).decode("utf-8")
+
+    with open(file_path, "rb") as f:
+        encoded_image = base64.b64encode(f.read())
+    encoded_image_text = encoded_image.decode("utf-8")
+    return encoded_image_text
+
 
 # Text-only inference
 def run_text_only(model: str) -> None:
@@ -64,7 +73,7 @@ def run_text_only(model: str) -> None:
 # Single-image input inference
 def run_single_image(model: str) -> None:
     ## Use image url in the payload
-    image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
+    image_url = "https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen-VL/assets/demo.jpeg"  #"https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
     chat_completion_from_url = client.chat.completions.create(
         messages=[
             {
@@ -110,8 +119,9 @@ def run_single_image(model: str) -> None:
 
 # Multi-image input inference
 def run_multi_image(model: str) -> None:
-    image_url_duck = "https://upload.wikimedia.org/wikipedia/commons/d/da/2015_Kaczka_krzy%C5%BCowka_w_wodzie_%28samiec%29.jpg"
-    image_url_lion = "https://upload.wikimedia.org/wikipedia/commons/7/77/002_The_lion_king_Snyggve_in_the_Serengeti_National_Park_Photo_by_Giles_Laurent.jpg"
+    image_url_duck = "https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen-VL/assets/demo.jpeg" #"https://upload.wikimedia.org/wikipedia/commons/d/da/2015_Kaczka_krzy%C5%BCowka_w_wodzie_%28samiec%29.jpg"
+    image_url_lion = "asset/002_The_lion_king_Snyggve_in_the_Serengeti_National_Park_Photo_by_Giles_Laurent.jpg" #"https://upload.wikimedia.org/wikipedia/commons/7/77/002_The_lion_king_Snyggve_in_the_Serengeti_National_Park_Photo_by_Giles_Laurent.jpg"
+    image_lion_base64 = encode_base64_content_from_file(image_url_lion)
     chat_completion_from_url = client.chat.completions.create(
         messages=[
             {
@@ -124,7 +134,7 @@ def run_multi_image(model: str) -> None:
                     },
                     {
                         "type": "image_url",
-                        "image_url": {"url": image_url_lion},
+                        "image_url": {"url": f"data:image/jpeg;base64,{image_lion_base64}"},
                     },
                 ],
             }
@@ -139,7 +149,7 @@ def run_multi_image(model: str) -> None:
 
 # Video input inference
 def run_video(model: str) -> None:
-    video_url = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
+    video_url = "https://content.pexels.com/videos/free-videos.mp4" "https://duguang-labelling.oss-cn-shanghai.aliyuncs.com/qiansun/video_ocr/videos/50221078283.mp4" #"http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
     video_base64 = encode_base64_content_from_url(video_url)
 
     ## Use video url in the payload
