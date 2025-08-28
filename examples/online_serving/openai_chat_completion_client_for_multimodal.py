@@ -119,9 +119,10 @@ def run_single_image(model: str) -> None:
 
 # Multi-image input inference
 def run_multi_image(model: str) -> None:
-    image_url_duck = "https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen-VL/assets/demo.jpeg" #"https://upload.wikimedia.org/wikipedia/commons/d/da/2015_Kaczka_krzy%C5%BCowka_w_wodzie_%28samiec%29.jpg"
-    image_url_lion = "asset/002_The_lion_king_Snyggve_in_the_Serengeti_National_Park_Photo_by_Giles_Laurent.jpg" #"https://upload.wikimedia.org/wikipedia/commons/7/77/002_The_lion_king_Snyggve_in_the_Serengeti_National_Park_Photo_by_Giles_Laurent.jpg"
-    image_lion_base64 = encode_base64_content_from_file(image_url_lion)
+    image_url_first = "https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen-VL/assets/demo.jpeg" #"https://upload.wikimedia.org/wikipedia/commons/d/da/2015_Kaczka_krzy%C5%BCowka_w_wodzie_%28samiec%29.jpg"
+    image_url_next = "https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen-VL/assets/demo.jpeg" #"examples/online_serving/asset/002_The_lion_king_Snyggve_in_the_Serengeti_National_Park_Photo_by_Giles_Laurent.jpg" #"https://upload.wikimedia.org/wikipedia/commons/7/77/002_The_lion_king_Snyggve_in_the_Serengeti_National_Park_Photo_by_Giles_Laurent.jpg"
+    # image_base64_next = encode_base64_content_from_file(image_url_next)
+    image_base64 = encode_base64_content_from_url(image_url_next)
     chat_completion_from_url = client.chat.completions.create(
         messages=[
             {
@@ -130,11 +131,12 @@ def run_multi_image(model: str) -> None:
                     {"type": "text", "text": "What are the animals in these images?"},
                     {
                         "type": "image_url",
-                        "image_url": {"url": image_url_duck},
+                        "image_url": {"url": image_url_first},
                     },
                     {
                         "type": "image_url",
-                        "image_url": {"url": f"data:image/jpeg;base64,{image_lion_base64}"},
+                        "image_url": {"url": image_url_next},
+                        #"image_url": {"url": f"data:image/jpeg;base64,{image_lion_base64}"},
                     },
                 ],
             }
@@ -144,12 +146,60 @@ def run_multi_image(model: str) -> None:
     )
 
     result = chat_completion_from_url.choices[0].message.content
-    print("Chat completion output:", result)
+    print("Chat completion output url + url :", result)
+
+    chat_completion_from_url = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "What are the animals in these images?"},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": image_url_first},
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"},
+                    },
+                ],
+            }
+        ],
+        model=model,
+        max_completion_tokens=64,
+    )
+
+    result = chat_completion_from_url.choices[0].message.content
+    print("Chat completion output url + encoded:", result)
+    
+    chat_completion_from_url = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "What are the animals in these images?"},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"},
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"},
+                    },
+                ],
+            }
+        ],
+        model=model,
+        max_completion_tokens=64,
+    )
+
+    result = chat_completion_from_url.choices[0].message.content
+    print("Chat completion output encoded + encoded:", result)
 
 
 # Video input inference
 def run_video(model: str) -> None:
-    video_url = "https://content.pexels.com/videos/free-videos.mp4" "https://duguang-labelling.oss-cn-shanghai.aliyuncs.com/qiansun/video_ocr/videos/50221078283.mp4" #"http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
+    video_url = "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4" # "https://content.pexels.com/videos/free-videos.mp4" #"https://duguang-labelling.oss-cn-shanghai.aliyuncs.com/qiansun/video_ocr/videos/50221078283.mp4" #"http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
     video_base64 = encode_base64_content_from_url(video_url)
 
     ## Use video url in the payload
@@ -200,6 +250,7 @@ def run_audio(model: str) -> None:
     from vllm.assets.audio import AudioAsset
 
     audio_url = AudioAsset("winning_call").url
+    print(f"audio url {audio_url}")
     audio_base64 = encode_base64_content_from_url(audio_url)
 
     # OpenAI-compatible schema (`input_audio`)
@@ -298,12 +349,13 @@ def parse_args():
         choices=list(example_function_map.keys()),
         help="Conversation type with multimodal data.",
     )
+    parser.add_argument("--model", type=str, required=True, help="model name")
     return parser.parse_args()
 
 
 def main(args) -> None:
     chat_type = args.chat_type
-    model = get_first_model(client)
+    model = args.model
     example_function_map[chat_type](model)
 
 
